@@ -1,8 +1,10 @@
 package setu
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"sync"
@@ -124,7 +126,7 @@ func sendSetu(c *client.QQClient, id int64, r18 bool, tag string) {
 	c.SendPrivateMessage(id, imgMsg)
 }
 
-func getSetuImg(r18 bool, tag string) ([]byte, error) {
+func getSetuImg(r18 bool, tag string) (io.ReadSeeker, error) {
 	apiURL := "https://api.lolicon.app/setu/v2"
 	queryList := make([][]string, 0)
 	if r18 {
@@ -170,7 +172,7 @@ func getSetuImg(r18 bool, tag string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return imgBytes, nil
+	return bytes.NewReader(imgBytes), nil
 }
 
 func getRequest(url string, queryList [][]string) ([]byte, error) {
