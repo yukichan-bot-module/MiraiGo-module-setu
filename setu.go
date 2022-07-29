@@ -16,7 +16,7 @@ import (
 )
 
 var instance *setu
-var logger = utils.GetModuleLogger("aimerneige.chess.setu")
+var logger = utils.GetModuleLogger("com.aimerneige.setu")
 
 type setu struct {
 }
@@ -28,7 +28,7 @@ func init() {
 
 func (s *setu) MiraiGoModule() bot.ModuleInfo {
 	return bot.ModuleInfo{
-		ID:       "aimerneige.test.setu",
+		ID:       "com.aimerneige.setu",
 		Instance: instance,
 	}
 }
