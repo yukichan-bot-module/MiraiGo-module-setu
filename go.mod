@@ -1,4 +1,4 @@
-module github.com/aimerneige/yuki-chan-setu-module
+module github.com/yukichan-bot-module/MiraiGo-module-setu
 
 go 1.17
 
