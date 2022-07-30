@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/Logiase/MiraiGo-Template/bot"
+	"github.com/Logiase/MiraiGo-Template/config"
 	"github.com/Logiase/MiraiGo-Template/utils"
 	"github.com/Mrs4s/MiraiGo/client"
 	"github.com/Mrs4s/MiraiGo/message"
@@ -17,6 +18,8 @@ import (
 
 var instance *setu
 var logger = utils.GetModuleLogger("com.aimerneige.setu")
+var r18Enabled bool = false
+var blacklistUser []int64
 
 type setu struct {
 }
@@ -37,6 +40,11 @@ func (s *setu) MiraiGoModule() bot.ModuleInfo {
 // 在此处可以进行 Module 的初始化配置
 // 如配置读取
 func (s *setu) Init() {
+	r18Enabled = config.GlobalConfig.GetBool("aimerneige.setu.r18")
+	blacklistUserSlice := config.GlobalConfig.GetIntSlice("aimerneige.setu.blacklist")
+	for _, user := range blacklistUserSlice {
+		blacklistUser = append(blacklistUser, int64(user))
+	}
 }
 
 // PostInit 第二次初始化
@@ -48,11 +56,14 @@ func (s *setu) PostInit() {
 // Serve 注册服务函数部分
 func (s *setu) Serve(b *bot.Bot) {
 	b.OnGroupMessage(func(c *client.QQClient, msg *message.GroupMessage) {
+		if inBlacklist(msg.Sender.Uin) {
+			return
+		}
 		if msg.ToString() == "来点色图" {
 			c.SendGroupMessage(msg.GroupCode, message.NewSendingMessage().Append(message.NewText("不可以色色！")))
 			sendSetu(c, msg.Sender.Uin, false, "")
 		}
-		if msg.ToString() == "来点r18色图" {
+		if r18Enabled && msg.ToString() == "来点r18色图" {
 			c.SendGroupMessage(msg.GroupCode, message.NewSendingMessage().Append(message.NewText("太色了！不可以！")))
 			sendSetu(c, msg.Sender.Uin, true, "")
 		}
@@ -63,10 +74,13 @@ func (s *setu) Serve(b *bot.Bot) {
 		}
 	})
 	b.OnPrivateMessage(func(c *client.QQClient, msg *message.PrivateMessage) {
+		if inBlacklist(msg.Sender.Uin) {
+			return
+		}
 		if msg.ToString() == "来点色图" {
 			sendSetu(c, msg.Sender.Uin, false, "")
 		}
-		if msg.ToString() == "来点r18色图" {
+		if r18Enabled && msg.ToString() == "来点r18色图" {
 			sendSetu(c, msg.Sender.Uin, true, "")
 		}
 		tag := parseTag(msg.ToString())
@@ -200,4 +214,13 @@ func getRequest(url string, queryList [][]string) ([]byte, error) {
 		return nil, err
 	}
 	return body, nil
+}
+
+func inBlacklist(userID int64) bool {
+	for _, v := range blacklistUser {
+		if userID == v {
+			return true
+		}
+	}
+	return false
 }
