@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"sync"
 
@@ -20,6 +19,7 @@ var instance *setu
 var logger = utils.GetModuleLogger("com.aimerneige.setu")
 var r18Enabled bool = false
 var blacklistUser []int64
+var allowedList []int64
 
 type setu struct {
 }
@@ -45,6 +45,10 @@ func (s *setu) Init() {
 	for _, user := range blacklistUserSlice {
 		blacklistUser = append(blacklistUser, int64(user))
 	}
+	allowedListSlice := config.GlobalConfig.GetIntSlice("aimerneige.setu.allowedlist")
+	for _, user := range allowedListSlice {
+		allowedList = append(allowedList, int64(user))
+	}
 }
 
 // PostInit 第二次初始化
@@ -56,6 +60,12 @@ func (s *setu) PostInit() {
 // Serve 注册服务函数部分
 func (s *setu) Serve(b *bot.Bot) {
 	b.OnGroupMessage(func(c *client.QQClient, msg *message.GroupMessage) {
+		if !isAllowed(msg.GroupCode) {
+			return
+		}
+		if msg.Sender.IsAnonymous() {
+			return
+		}
 		if inBlacklist(msg.Sender.Uin) {
 			return
 		}
@@ -92,7 +102,9 @@ func (s *setu) Serve(b *bot.Bot) {
 
 // Start 此函数会新开携程进行调用
 // ```go
-// 		go exampleModule.Start()
+//
+//	go exampleModule.Start()
+//
 // ```
 // 可以利用此部分进行后台操作
 // 如 http 服务器等等
@@ -209,7 +221,7 @@ func getRequest(url string, queryList [][]string) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -218,6 +230,15 @@ func getRequest(url string, queryList [][]string) ([]byte, error) {
 
 func inBlacklist(userID int64) bool {
 	for _, v := range blacklistUser {
+		if userID == v {
+			return true
+		}
+	}
+	return false
+}
+
+func isAllowed(userID int64) bool {
+	for _, v := range allowedList {
 		if userID == v {
 			return true
 		}

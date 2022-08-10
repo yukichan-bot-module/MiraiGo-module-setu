@@ -43,6 +43,10 @@ aimerneige:
     r18: true # 易封号
     blacklist: # 黑名单
       - 1781924496
+    allowed: # 开启功能的群
+      - 857066811
+      - 328521977
+      - 306979312
 ```
 
 ## LICENSE
