@@ -45,7 +45,7 @@ func (s *setu) Init() {
 	for _, user := range blacklistUserSlice {
 		blacklistUser = append(blacklistUser, int64(user))
 	}
-	allowedListSlice := config.GlobalConfig.GetIntSlice("aimerneige.setu.allowedlist")
+	allowedListSlice := config.GlobalConfig.GetIntSlice("aimerneige.setu.allowed")
 	for _, user := range allowedListSlice {
 		allowedList = append(allowedList, int64(user))
 	}
@@ -228,18 +228,18 @@ func getRequest(url string, queryList [][]string) ([]byte, error) {
 	return body, nil
 }
 
-func inBlacklist(userID int64) bool {
+func inBlacklist(userUin int64) bool {
 	for _, v := range blacklistUser {
-		if userID == v {
+		if userUin == v {
 			return true
 		}
 	}
 	return false
 }
 
-func isAllowed(userID int64) bool {
+func isAllowed(groupCode int64) bool {
 	for _, v := range allowedList {
-		if userID == v {
+		if groupCode == v {
 			return true
 		}
 	}
