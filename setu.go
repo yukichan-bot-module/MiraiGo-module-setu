@@ -45,10 +45,12 @@ func (s *setu) Init() {
 	for _, user := range blacklistUserSlice {
 		blacklistUser = append(blacklistUser, int64(user))
 	}
+	logger.Info("blacklist user list:", blacklistUser)
 	allowedListSlice := config.GlobalConfig.GetIntSlice("aimerneige.setu.allowed")
-	for _, user := range allowedListSlice {
-		allowedList = append(allowedList, int64(user))
+	for _, groupCode := range allowedListSlice {
+		allowedList = append(allowedList, int64(groupCode))
 	}
+	logger.Info("allowed group list:", allowedList)
 }
 
 // PostInit 第二次初始化
