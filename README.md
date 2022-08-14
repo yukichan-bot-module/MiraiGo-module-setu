@@ -40,6 +40,7 @@ imports (
 ```yaml
 aimerneige:
   setu:
+    private: true # 是否允许私聊
     r18: true # 易封号
     blacklist: # 黑名单
       - 1781924496

@@ -17,6 +17,7 @@ import (
 
 var instance *setu
 var logger = utils.GetModuleLogger("com.aimerneige.setu")
+var privateEnabled bool = false
 var r18Enabled bool = false
 var blacklistUser []int64
 var allowedList []int64
@@ -40,6 +41,7 @@ func (s *setu) MiraiGoModule() bot.ModuleInfo {
 // 在此处可以进行 Module 的初始化配置
 // 如配置读取
 func (s *setu) Init() {
+	privateEnabled = config.GlobalConfig.GetBool("aimerneige.setu.private")
 	r18Enabled = config.GlobalConfig.GetBool("aimerneige.setu.r18")
 	blacklistUserSlice := config.GlobalConfig.GetIntSlice("aimerneige.setu.blacklist")
 	for _, user := range blacklistUserSlice {
@@ -86,6 +88,9 @@ func (s *setu) Serve(b *bot.Bot) {
 		}
 	})
 	b.OnPrivateMessage(func(c *client.QQClient, msg *message.PrivateMessage) {
+		if !privateEnabled {
+			return
+		}
 		if inBlacklist(msg.Sender.Uin) {
 			return
 		}
