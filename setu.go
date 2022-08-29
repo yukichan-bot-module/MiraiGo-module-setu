@@ -63,7 +63,7 @@ func (s *setu) PostInit() {
 
 // Serve 注册服务函数部分
 func (s *setu) Serve(b *bot.Bot) {
-	b.OnGroupMessage(func(c *client.QQClient, msg *message.GroupMessage) {
+	b.GroupMessageEvent.Subscribe(func(c *client.QQClient, msg *message.GroupMessage) {
 		if !isAllowed(msg.GroupCode) {
 			return
 		}
@@ -87,7 +87,7 @@ func (s *setu) Serve(b *bot.Bot) {
 			sendSetu(c, msg.Sender.Uin, false, tag)
 		}
 	})
-	b.OnPrivateMessage(func(c *client.QQClient, msg *message.PrivateMessage) {
+	b.PrivateMessageEvent.Subscribe(func(c *client.QQClient, msg *message.PrivateMessage) {
 		if !privateEnabled {
 			return
 		}
